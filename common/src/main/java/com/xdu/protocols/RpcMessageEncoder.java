@@ -1,5 +1,6 @@
 package com.xdu.protocols;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.xdu.constants.RpcConstants;
 import com.xdu.message.RpcMessage;
 import io.netty.buffer.ByteBuf;
@@ -53,7 +54,19 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
         // if messageType is not heartbeat message,then fullLength = head_length+body_length
         if (rpcMessage.getMessageType() != RpcConstants.HEARTBEAT_REQUEST_TYPE
                 && rpcMessage.getMessageType() != RpcConstants.HEARTBEAT_RESPONSE_TYPE){
-
+        // serial data
+            Object data = rpcMessage.getData();
+            bodyBytes = ObjectUtil.serialize(data);
+            fullLength += bodyBytes.length;
         }
+
+        if(bodyBytes != null){
+            byteBuf.writeBytes(bodyBytes);
+        }
+
+        int writeIndex = byteBuf.writerIndex();
+        byteBuf.writerIndex(writeIndex - fullLength + RpcConstants.MAGIC_NUMBER.length + 1);
+        byteBuf.writeInt(fullLength);
+        byteBuf.writerIndex(writeIndex);
     }
 }

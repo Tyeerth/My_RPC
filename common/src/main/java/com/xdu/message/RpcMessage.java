@@ -1,13 +1,18 @@
 package com.xdu.message;
 
-import lombok.Data;
+import lombok.*;
 
 /**
  * @Author tyeerth
  * @Date 2023/10/26 10:53
  * @Description
  */
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder //使用builder注解使得方法可以连续赋值
+@ToString
 public class RpcMessage {
     /**
      * Rpc message type

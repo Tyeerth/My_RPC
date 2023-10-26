@@ -1,6 +1,11 @@
 package com.xdu.server;
 
+import com.xdu.handler.NettyRpcServerHandler;
+import com.xdu.message.RpcMessage;
+import com.xdu.protocols.RpcMessageDecoder;
 import com.xdu.protocols.RpcMessageEncoder;
+import com.xdu.utils.RuntimeUtil;
+import com.xdu.utils.ThreadPoolFactoryUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -10,6 +15,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,7 +36,11 @@ public class NettyServer {
         String host = InetAddress.getLocalHost().getHostAddress();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workGroup = new NioEventLoopGroup();
-
+        // 创建线程池来执行处理逻辑
+        DefaultEventExecutorGroup serviceHandlerGroup = new DefaultEventExecutorGroup(
+                RuntimeUtil.cpus() * 2,
+                ThreadPoolFactoryUtil.createThreadFactory("service-handler-group", false)
+        );
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup,workGroup)
                 .channel(NioServerSocketChannel.class)
@@ -44,6 +54,10 @@ public class NettyServer {
                         //30s内没有收到客户端链接就关闭
                         pipeline.addLast(new IdleStateHandler(30,0,0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageEncoder());
+                        pipeline.addLast(new RpcMessageDecoder());
+
+                        //实际业务的处理
+                        pipeline.addLast(serviceHandlerGroup,new NettyRpcServerHandler());
                     }
                 })
 
