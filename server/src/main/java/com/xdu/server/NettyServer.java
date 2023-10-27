@@ -55,7 +55,7 @@ public class NettyServer {
                         pipeline.addLast(new IdleStateHandler(30,0,0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new RpcMessageDecoder());
-
+                        // 这里的msg是客户端发送过来的
                         //实际业务的处理
                         pipeline.addLast(serviceHandlerGroup,new NettyRpcServerHandler());
                     }
