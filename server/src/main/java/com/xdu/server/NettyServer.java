@@ -31,18 +31,19 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class NettyServer {
+    public static final int PORT = 9998;
     @SneakyThrows
     public void start(){
         String host = InetAddress.getLocalHost().getHostAddress();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        NioEventLoopGroup workGroup = new NioEventLoopGroup();
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         // 创建线程池来执行处理逻辑
         DefaultEventExecutorGroup serviceHandlerGroup = new DefaultEventExecutorGroup(
                 RuntimeUtil.cpus() * 2,
                 ThreadPoolFactoryUtil.createThreadFactory("service-handler-group", false)
         );
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup,workGroup)
+        bootstrap.group(bossGroup,workerGroup)
                 .channel(NioServerSocketChannel.class)
 //        handler在初始化时就会执行，而childHandler会在客户端成功connect后才执行，这是两者的区别。
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -60,8 +61,13 @@ public class NettyServer {
                         pipeline.addLast(serviceHandlerGroup,new NettyRpcServerHandler());
                     }
                 })
+                .bind(host,PORT).sync()
+        // 等待服务端监听端口关闭
+        .channel().closeFuture().sync();
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        serviceHandlerGroup.shutdownGracefully();
 
 
-        ;
     }
 }

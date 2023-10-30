@@ -6,8 +6,10 @@ import com.xdu.constants.RpcConstants;
 import com.xdu.message.RpcMessage;
 import com.xdu.message.RpcRequest;
 import com.xdu.message.RpcResponse;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,6 +47,9 @@ public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
                     log.error("not writable channel");
                 }
             }
+            ctx.writeAndFlush(rpcMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         }
+        //Ensure that ByteBuf is released, otherwise there may be memory leaks
+        ReferenceCountUtil.release(msg);
     }
 }
