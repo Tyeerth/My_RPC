@@ -1,6 +1,8 @@
-package com.xdu.annotation;
+package com.xdu.server.annotation;
 
+import com.xdu.server.NettyServer;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.io.ResourceLoader;
@@ -21,5 +23,8 @@ public class CustomScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         ImportBeanDefinitionRegistrar.super.registerBeanDefinitions(importingClassMetadata, registry);
+        RootBeanDefinition beanDefinition = new RootBeanDefinition();
+        beanDefinition.setBeanClass(NettyServer.class);
+        registry.registerBeanDefinition("NettyServer",beanDefinition);
     }
 }

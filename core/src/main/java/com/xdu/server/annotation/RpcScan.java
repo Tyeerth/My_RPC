@@ -1,4 +1,4 @@
-package com.xdu.annotation;
+package com.xdu.server.annotation;
 
 import org.springframework.context.annotation.Import;
 

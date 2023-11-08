@@ -1,4 +1,4 @@
-package com.xdu.annotation;
+package com.xdu.server.annotation;
 
 /**
  * @Author tyeerth

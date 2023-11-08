@@ -1,7 +1,7 @@
 package com.xdu;
 
-import com.xdu.annotation.RpcScan;
 import com.xdu.server.NettyServer;
+import com.xdu.server.annotation.RpcScan;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**

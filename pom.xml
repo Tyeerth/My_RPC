@@ -13,6 +13,7 @@
         <module>server</module>
         <module>common</module>
         <module>core</module>
+        <module>common-api</module>
     </modules>
 
     <properties>

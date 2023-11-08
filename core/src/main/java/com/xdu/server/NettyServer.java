@@ -1,9 +1,8 @@
 package com.xdu.server;
 
-import com.xdu.handler.NettyRpcServerHandler;
-import com.xdu.message.RpcMessage;
 import com.xdu.protocols.RpcMessageDecoder;
 import com.xdu.protocols.RpcMessageEncoder;
+import com.xdu.server.handler.NettyRpcServerHandler;
 import com.xdu.utils.RuntimeUtil;
 import com.xdu.utils.ThreadPoolFactoryUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -67,7 +66,6 @@ public class NettyServer {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
         serviceHandlerGroup.shutdownGracefully();
-
 
     }
 }

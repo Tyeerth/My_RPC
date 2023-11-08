@@ -1,6 +1,5 @@
-package com.xdu.handler;
+package com.xdu.server.handler;
 
-import com.esotericsoftware.minlog.Log;
 import com.xdu.Enum.RpcResponseCodeEnum;
 import com.xdu.constants.RpcConstants;
 import com.xdu.message.RpcMessage;
