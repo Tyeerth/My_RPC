@@ -71,11 +71,11 @@ public final class CuratorUtils {
             return SERVICE_ADDRESS_MAP.get(rpcServiceName);
         }
         List<String> result = null;
-        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
+        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;//查看根节点下的rpcServiceName有没有路径存在
         try {
             result = zkClient.getChildren().forPath(servicePath);
             SERVICE_ADDRESS_MAP.put(rpcServiceName, result);
-            registerWatcher(rpcServiceName, zkClient);
+            registerWatcher(rpcServiceName, zkClient);//注册监听器监听这些路径
         } catch (Exception e) {
             log.error("get children nodes for path [{}] fail", servicePath);
         }
