@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 public class NettyClient {
     public static void main(String[] args)  {
         // initing netty
-        RpcRequestTransport nettyRpcClient = new NettyRpcClient();
-        RpcClientProxy rpcClientProxy = new RpcClientProxy(nettyRpcClient);
-        HelloService helloServiceProxy = rpcClientProxy.getProxy(HelloService.class);
+        RpcRequestTransport nettyRpcClient = new NettyRpcClient();//实际的执行对象
+        RpcClientProxy rpcClientProxy = new RpcClientProxy(nettyRpcClient);//里面封装一些代码执行的额外逻辑
+        HelloService helloServiceProxy = rpcClientProxy.getProxy(HelloService.class);//代理对象
         String sendData = helloServiceProxy.hello(new Hello("111", "send data"));
         System.out.println(sendData);
     }

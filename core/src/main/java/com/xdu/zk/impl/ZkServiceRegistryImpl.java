@@ -1,7 +1,7 @@
-package com.xdu.zk;
+package com.xdu.zk.impl;
 
 import com.xdu.zk.util.CuratorUtils;
-import com.xdu.zk.util.ServiceRegistry;
+import com.xdu.zk.ServiceRegistry;
 import org.apache.curator.framework.CuratorFramework;
 
 import java.net.InetSocketAddress;

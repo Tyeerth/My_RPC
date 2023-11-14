@@ -1,4 +1,4 @@
-package com.xdu.zk.util;
+package com.xdu.zk;
 
 import java.net.InetSocketAddress;
 

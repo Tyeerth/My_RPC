@@ -32,7 +32,7 @@ public class RpcClientProxy implements InvocationHandler {
     public RpcClientProxy(RpcRequestTransport rpcRequestTransport){
         this.requestTransport =rpcRequestTransport;
     }
-    @Override
+    @Override//代理对象本身、被调用的方法对象和方法的参数数组
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
         log.info("invoked method {}",method.getName());
         RpcRequest rpcRequest = RpcRequest.builder().methodName(method.getName())
@@ -69,6 +69,7 @@ public class RpcClientProxy implements InvocationHandler {
 
     public <T> T getProxy(Class<T> clazz){
         //在这行代码中，this 关键字指向当前类的实例。当前类实现了 InvocationHandler 接口，并且该实例会作为 invoke() 方法的实现。代理对象是requestTransport
+
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),new Class[]{clazz},this);
     }
 }

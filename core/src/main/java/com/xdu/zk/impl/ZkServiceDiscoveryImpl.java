@@ -1,8 +1,9 @@
-package com.xdu.zk;
+package com.xdu.zk.impl;
 
 import com.xdu.Enum.RpcErrorMessageEnum;
 import com.xdu.Exception.RpcException;
 import com.xdu.message.RpcRequest;
+import com.xdu.zk.ServiceDiscovery;
 import com.xdu.zk.util.CuratorUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -13,10 +14,10 @@ import java.util.List;
 /**
  * @author tyeerth
  * @date 2023/11/9 - 下午4:41
- * @description
+ * @description according to rpcServiceName,find a InetSocketaddress
  */
 @Slf4j
-public class ZkServiceDiscoveryImpl implements ServiceDiscovery{
+public class ZkServiceDiscoveryImpl implements ServiceDiscovery {
     @Override
     public InetSocketAddress lookupService(RpcRequest rpcRequest) {
         String rpcServiceName = rpcRequest.getRpcServiceName();
