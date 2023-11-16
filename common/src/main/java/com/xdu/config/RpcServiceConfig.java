@@ -19,7 +19,7 @@ public class RpcServiceConfig {
     private String group = "";
 
     /**
-     * target service,目标提供的服务
+     * target service,目标提供的服务(提供服务的对象）
      */
     private Object service;
 

@@ -3,12 +3,15 @@ package com.xdu.client;
 
 import com.xdu.client.handler.NettyRpcClientHandler;
 import com.xdu.constants.RpcConstants;
+import com.xdu.factory.SingleFactory;
 import com.xdu.message.RpcMessage;
 import com.xdu.message.RpcRequest;
 import com.xdu.message.RpcResponse;
 import com.xdu.protocols.RpcMessageDecoder;
 import com.xdu.protocols.RpcMessageEncoder;
 import com.xdu.transport.RpcRequestTransport;
+import com.xdu.zk.ServiceDiscovery;
+import com.xdu.zk.impl.ZkServiceDiscoveryImpl;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -38,6 +41,8 @@ public class NettyRpcClient implements RpcRequestTransport {
      * 注意final关键字修饰的变量需要在构造方法中进行初始化
      */
     public static final int PORT = 9998;
+    private final ServiceDiscovery serviceDiscovery;
+    private final ChannelProvider channelProvider;
     private final Bootstrap bootstrap;
     private final EventLoopGroup eventLoopGroup;
     public NettyRpcClient(){
@@ -54,11 +59,13 @@ public class NettyRpcClient implements RpcRequestTransport {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
                         pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
-                        pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new RpcMessageDecoder());
+                        pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new NettyRpcClientHandler());
                     }
                 });
+        this.serviceDiscovery = new ZkServiceDiscoveryImpl();
+        this.channelProvider = SingleFactory.getInstance(ChannelProvider.class);
     }
 
     /**
@@ -79,13 +86,13 @@ public class NettyRpcClient implements RpcRequestTransport {
         return completableFuture.get();
     }
     public Object sendRpcRequest(RpcRequest rpcRequest) {
-
         // build return value
         CompletableFuture<RpcResponse<Object>> resultFuture = new CompletableFuture<>();
-        String host = null;
+        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest);
+        log.info("success find service address:{}", inetSocketAddress);
         try {
-            host = InetAddress.getLocalHost().getHostAddress();
-            Channel channel = doConnect(new InetSocketAddress(host, PORT));
+//            host = InetAddress.getLocalHost().getHostAddress();
+            Channel channel = doConnect(inetSocketAddress);
             if (channel.isActive()){
                 RpcMessage rpcMessage = RpcMessage.builder().data(rpcRequest)
                         .messageType(RpcConstants.REQUEST_TYPE).build();
@@ -99,9 +106,17 @@ public class NettyRpcClient implements RpcRequestTransport {
                     }
                 });
             }
-        } catch (UnknownHostException | ExecutionException | InterruptedException e) {
+        } catch ( ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
         return resultFuture;
+    }
+    public Channel getChannel(InetSocketAddress inetSocketAddress) throws ExecutionException, InterruptedException {
+        Channel channel = channelProvider.get(inetSocketAddress);
+        if (channel == null){
+            channel = doConnect(inetSocketAddress);
+            channelProvider.set(inetSocketAddress, channel);
+        }
+        return channel;
     }
 }

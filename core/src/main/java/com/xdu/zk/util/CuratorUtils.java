@@ -56,6 +56,7 @@ public final class CuratorUtils {
             }
             REGISTERED_PATH_SET.add(path);
         } catch (Exception e) {
+            System.out.println(e);
             log.error("create persistent node for path [{}] fail", path);
         }
     }

@@ -1,9 +1,16 @@
 package com.xdu.zk.impl;
 
+import com.xdu.Enum.RpcErrorMessageEnum;
+import com.xdu.Exception.RpcException;
 import com.xdu.config.RpcServiceConfig;
+import com.xdu.server.NettyServer;
 import com.xdu.zk.ServiceProvider;
+import com.xdu.zk.ServiceRegistry;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,9 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ZkServiceProviderImpl implements ServiceProvider {
     private final Set<String> registeredServices;
     private Map<String,Object> serviceMap;
+    private final ServiceRegistry serviceRegistry;
+
     public ZkServiceProviderImpl(){
         registeredServices = ConcurrentHashMap.newKeySet();
         serviceMap = new ConcurrentHashMap<String,Object>();
+        serviceRegistry = new ZkServiceRegistryImpl();
     }
     @Override
     public void addService(RpcServiceConfig rpcServiceConfig) {
@@ -34,11 +44,21 @@ public class ZkServiceProviderImpl implements ServiceProvider {
 
     @Override
     public Object getService(String rpcServiceName) {
-        return null;
+        Object service = serviceMap.get(rpcServiceName);
+        if (null == service) {
+            throw new RpcException(RpcErrorMessageEnum.SERVICE_CAN_NOT_BE_FOUND);
+        }
+        return service;
     }
 
     @Override
     public void publishService(RpcServiceConfig rpcServiceConfig) {
-
+        try {
+            String host = InetAddress.getLocalHost().getHostAddress();
+            this.addService(rpcServiceConfig);
+            serviceRegistry.registerService(rpcServiceConfig.getRpcServiceName(), new InetSocketAddress(host, NettyServer.PORT));
+        } catch (UnknownHostException e) {
+            log.error("occur exception when getHostAddress", e);
+        }
     }
 }
