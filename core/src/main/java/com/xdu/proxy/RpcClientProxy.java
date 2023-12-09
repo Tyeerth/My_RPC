@@ -4,6 +4,7 @@ import com.xdu.Enum.RpcErrorMessageEnum;
 import com.xdu.Enum.RpcResponseCodeEnum;
 import com.xdu.Exception.RpcException;
 import com.xdu.client.NettyRpcClient;
+import com.xdu.config.RpcServiceConfig;
 import com.xdu.message.RpcRequest;
 import com.xdu.message.RpcResponse;
 import com.xdu.transport.RpcRequestTransport;
@@ -29,8 +30,15 @@ public class RpcClientProxy implements InvocationHandler {
      *  The way used to requests to the server .And there are two implements: socket and netty
      */
     private final RpcRequestTransport requestTransport;
+    private final RpcServiceConfig rpcServiceConfig;
     public RpcClientProxy(RpcRequestTransport rpcRequestTransport){
         this.requestTransport =rpcRequestTransport;
+        this.rpcServiceConfig = new RpcServiceConfig();
+
+    }
+    public RpcClientProxy(RpcRequestTransport rpcRequestTransport, RpcServiceConfig rpcServiceConfig) {
+        this.requestTransport = rpcRequestTransport;
+        this.rpcServiceConfig = rpcServiceConfig;
     }
     @Override//代理对象本身、被调用的方法对象和方法的参数数组
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
